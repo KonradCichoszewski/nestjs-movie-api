@@ -2,24 +2,28 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { PrismaService } from 'src/shared/prisma.service';
+import { GenreQueryDto } from './dto/genre.query.dto';
 
 @Injectable()
 export class GenreService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateGenreDto) {
+  async create(dto: CreateGenreDto) {
     return this.prisma.genre.create({
       data: dto,
     });
   }
 
-  findAll() {
-    return this.prisma.genre.findMany();
+  async findAll(query: GenreQueryDto) {
+    return this.prisma.genre.findMany({
+      include: { movies: query.includeMovies },
+    });
   }
 
-  findOne(id: number) {
-    const genre = this.prisma.genre.findUnique({
+  async findOne(id: number, query: GenreQueryDto) {
+    const genre = await this.prisma.genre.findUnique({
       where: { id },
+      include: { movies: query.includeMovies },
     });
 
     if (!genre) {
@@ -29,16 +33,22 @@ export class GenreService {
     return genre;
   }
 
-  update(id: number, updateGenreDto: UpdateGenreDto) {
+  async update(
+    id: number,
+    updateGenreDto: UpdateGenreDto,
+    query: GenreQueryDto,
+  ) {
     return this.prisma.genre.update({
       where: { id },
       data: updateGenreDto,
+      include: { movies: query.includeMovies },
     });
   }
 
-  remove(id: number) {
+  async remove(id: number, query: GenreQueryDto) {
     return this.prisma.genre.delete({
       where: { id },
+      include: { movies: query.includeMovies },
     });
   }
 }
