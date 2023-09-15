@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateGenreDto } from './dto/create-genre.dto';
@@ -12,6 +13,7 @@ import { Genre } from '@prisma/client';
 @Injectable()
 export class GenreService {
   constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(GenreService.name);
 
   async create(dto: CreateGenreDto): Promise<Genre> {
     try {
@@ -20,6 +22,7 @@ export class GenreService {
       });
       return genre;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to create genre');
     }
   }
@@ -56,6 +59,7 @@ export class GenreService {
       });
       return updatedGenre;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to update genre');
     }
   }
@@ -68,6 +72,7 @@ export class GenreService {
       });
       return deletedGenre;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to delete genre');
     }
   }

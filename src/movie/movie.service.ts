@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -12,6 +13,7 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class MovieService {
   constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(MovieService.name);
 
   async create(dto: CreateMovieDto) {
     try {
@@ -28,6 +30,7 @@ export class MovieService {
       });
       return movie;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to create movie');
     }
   }
@@ -80,6 +83,7 @@ export class MovieService {
       });
       return updatedMovie;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to update movie');
     }
   }
@@ -92,6 +96,7 @@ export class MovieService {
       });
       return deletedMovie;
     } catch (error) {
+      this.logger.error(error);
       throw new BadRequestException('Failed to delete movie');
     }
   }
