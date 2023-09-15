@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/shared/prisma.service';
+import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MovieService {
@@ -21,8 +23,20 @@ export class MovieService {
     });
   }
 
-  findAll() {
+  findAll(dto: GetMoviesQueryDto) {
+    const query: Prisma.MovieWhereInput = {
+      ...(dto.title !== undefined && {
+        title: { contains: dto.title, mode: 'insensitive' },
+      }),
+      ...(dto.genre !== undefined && {
+        genres: {
+          some: { name: { contains: dto.genre, mode: 'insensitive' } },
+        },
+      }),
+    };
+
     return this.prisma.movie.findMany({
+      where: query,
       include: { genres: true },
     });
   }
