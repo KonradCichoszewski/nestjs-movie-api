@@ -13,6 +13,7 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
 import { Movie } from '@prisma/client';
+import { IntIdParamDto } from 'src/shared/dto/int-id-param.dto';
 
 @Controller('movies')
 export class MovieController {
@@ -29,20 +30,20 @@ export class MovieController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Movie> {
-    return this.movieService.findOne(+id);
+  async findOne(@Param() { id }: IntIdParamDto): Promise<Movie> {
+    return this.movieService.findOne(id);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param() { id }: IntIdParamDto,
     @Body() updateMovieDto: UpdateMovieDto,
   ): Promise<Movie> {
-    return this.movieService.update(+id, updateMovieDto);
+    return this.movieService.update(id, updateMovieDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Movie> {
-    return this.movieService.remove(+id);
+  async remove(@Param() { id }: IntIdParamDto): Promise<Movie> {
+    return this.movieService.remove(id);
   }
 }

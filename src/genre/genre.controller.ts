@@ -13,6 +13,7 @@ import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { GenreQueryDto } from './dto/genre.query.dto';
 import { Genre } from '@prisma/client';
+import { IntIdParamDto } from 'src/shared/dto/int-id-param.dto';
 
 @Controller('genres')
 export class GenreController {
@@ -20,6 +21,7 @@ export class GenreController {
 
   @Post()
   async create(@Body() createGenreDto: CreateGenreDto): Promise<Genre> {
+    console.log(createGenreDto);
     return this.genreService.create(createGenreDto);
   }
 
@@ -30,26 +32,26 @@ export class GenreController {
 
   @Get(':id')
   async findOne(
-    @Param('id') id: string,
+    @Param() { id }: IntIdParamDto,
     @Query() query: GenreQueryDto,
   ): Promise<Genre> {
-    return this.genreService.findOne(+id, query);
+    return this.genreService.findOne(id, query);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param() { id }: IntIdParamDto,
     @Body() updateGenreDto: UpdateGenreDto,
     @Query() query: GenreQueryDto,
   ): Promise<Genre> {
-    return this.genreService.update(+id, updateGenreDto, query);
+    return this.genreService.update(id, updateGenreDto, query);
   }
 
   @Delete(':id')
   async remove(
-    @Param('id') id: string,
+    @Param() { id }: IntIdParamDto,
     @Query() query: GenreQueryDto,
   ): Promise<Genre> {
-    return this.genreService.remove(+id, query);
+    return this.genreService.remove(id, query);
   }
 }
