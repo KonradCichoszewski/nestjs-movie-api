@@ -12,37 +12,44 @@ import { GenreService } from './genre.service';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { GenreQueryDto } from './dto/genre.query.dto';
+import { Genre } from '@prisma/client';
 
 @Controller('genres')
 export class GenreController {
   constructor(private readonly genreService: GenreService) {}
 
   @Post()
-  create(@Body() createGenreDto: CreateGenreDto) {
+  async create(@Body() createGenreDto: CreateGenreDto): Promise<Genre> {
     return this.genreService.create(createGenreDto);
   }
 
   @Get()
-  findAll(@Query() query: GenreQueryDto) {
+  async findAll(@Query() query: GenreQueryDto): Promise<Genre[]> {
     return this.genreService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Query() query: GenreQueryDto) {
+  async findOne(
+    @Param('id') id: string,
+    @Query() query: GenreQueryDto,
+  ): Promise<Genre> {
     return this.genreService.findOne(+id, query);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateGenreDto: UpdateGenreDto,
     @Query() query: GenreQueryDto,
-  ) {
+  ): Promise<Genre> {
     return this.genreService.update(+id, updateGenreDto, query);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query() query: GenreQueryDto) {
+  async remove(
+    @Param('id') id: string,
+    @Query() query: GenreQueryDto,
+  ): Promise<Genre> {
     return this.genreService.remove(+id, query);
   }
 }

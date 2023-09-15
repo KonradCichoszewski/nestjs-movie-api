@@ -9,7 +9,7 @@ import { Prisma } from '@prisma/client';
 export class MovieService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateMovieDto) {
+  async create(dto: CreateMovieDto) {
     return this.prisma.movie.create({
       data: {
         title: dto.title,
@@ -23,7 +23,7 @@ export class MovieService {
     });
   }
 
-  findAll(dto: GetMoviesQueryDto) {
+  async findAll(dto: GetMoviesQueryDto) {
     const query: Prisma.MovieWhereInput = {
       ...(dto.title !== undefined && {
         title: { contains: dto.title, mode: 'insensitive' },
@@ -41,8 +41,8 @@ export class MovieService {
     });
   }
 
-  findOne(id: number) {
-    const movie = this.prisma.movie.findUnique({
+  async findOne(id: number) {
+    const movie = await this.prisma.movie.findUnique({
       where: { id },
       include: { genres: true },
     });
@@ -54,7 +54,7 @@ export class MovieService {
     return movie;
   }
 
-  update(id: number, dto: UpdateMovieDto) {
+  async update(id: number, dto: UpdateMovieDto) {
     return this.prisma.movie.update({
       where: { id },
       data: {
@@ -70,7 +70,7 @@ export class MovieService {
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.prisma.movie.delete({
       where: { id },
       include: { genres: true },
