@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
 import { PrismaService } from 'src/shared/prisma.service';
@@ -10,9 +14,14 @@ export class GenreService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateGenreDto): Promise<Genre> {
-    return this.prisma.genre.create({
-      data: dto,
-    });
+    try {
+      const genre = await this.prisma.genre.create({
+        data: dto,
+      });
+      return genre;
+    } catch (error) {
+      throw new BadRequestException('Failed to create genre');
+    }
   }
 
   async findAll(query: GenreQueryDto): Promise<Genre[]> {
@@ -39,17 +48,27 @@ export class GenreService {
     updateGenreDto: UpdateGenreDto,
     query: GenreQueryDto,
   ): Promise<Genre> {
-    return this.prisma.genre.update({
-      where: { id },
-      data: updateGenreDto,
-      include: { movies: query.includeMovies },
-    });
+    try {
+      const updatedGenre = await this.prisma.genre.update({
+        where: { id },
+        data: updateGenreDto,
+        include: { movies: query.includeMovies },
+      });
+      return updatedGenre;
+    } catch (error) {
+      throw new BadRequestException('Failed to update genre');
+    }
   }
 
   async remove(id: number, query: GenreQueryDto): Promise<Genre> {
-    return this.prisma.genre.delete({
-      where: { id },
-      include: { movies: query.includeMovies },
-    });
+    try {
+      const deletedGenre = await this.prisma.genre.delete({
+        where: { id },
+        include: { movies: query.includeMovies },
+      });
+      return deletedGenre;
+    } catch (error) {
+      throw new BadRequestException('Failed to delete genre');
+    }
   }
 }

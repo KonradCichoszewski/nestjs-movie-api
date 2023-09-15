@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/shared/prisma.service';
@@ -10,17 +14,22 @@ export class MovieService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateMovieDto) {
-    return this.prisma.movie.create({
-      data: {
-        title: dto.title,
-        description: dto.description,
-        releaseDate: dto.releaseDate,
-        genres: {
-          connect: dto.genres.map((name) => ({ name })),
+    try {
+      const movie = await this.prisma.movie.create({
+        data: {
+          title: dto.title,
+          description: dto.description,
+          releaseDate: dto.releaseDate,
+          genres: {
+            connect: dto.genres.map((name) => ({ name })),
+          },
         },
-      },
-      include: { genres: true },
-    });
+        include: { genres: true },
+      });
+      return movie;
+    } catch (error) {
+      throw new BadRequestException('Failed to create movie');
+    }
   }
 
   async findAll(dto: GetMoviesQueryDto) {
@@ -55,25 +64,35 @@ export class MovieService {
   }
 
   async update(id: number, dto: UpdateMovieDto) {
-    return this.prisma.movie.update({
-      where: { id },
-      data: {
-        title: dto.title,
-        description: dto.description,
-        releaseDate: dto.releaseDate,
-        genres: {
-          connect: dto.genresToAdd?.map((name) => ({ name })),
-          disconnect: dto.genresToRemove?.map((name) => ({ name })),
+    try {
+      const updatedMovie = await this.prisma.movie.update({
+        where: { id },
+        data: {
+          title: dto.title,
+          description: dto.description,
+          releaseDate: dto.releaseDate,
+          genres: {
+            connect: dto.genresToAdd?.map((name) => ({ name })),
+            disconnect: dto.genresToRemove?.map((name) => ({ name })),
+          },
         },
-      },
-      include: { genres: true },
-    });
+        include: { genres: true },
+      });
+      return updatedMovie;
+    } catch (error) {
+      throw new BadRequestException('Failed to update movie');
+    }
   }
 
   async remove(id: number) {
-    return this.prisma.movie.delete({
-      where: { id },
-      include: { genres: true },
-    });
+    try {
+      const deletedMovie = await this.prisma.movie.delete({
+        where: { id },
+        include: { genres: true },
+      });
+      return deletedMovie;
+    } catch (error) {
+      throw new BadRequestException('Failed to delete movie');
+    }
   }
 }
