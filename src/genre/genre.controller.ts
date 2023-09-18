@@ -21,7 +21,6 @@ export class GenreController {
 
   @Post()
   async create(@Body() createGenreDto: CreateGenreDto): Promise<Genre> {
-    console.log(createGenreDto);
     return this.genreService.create(createGenreDto);
   }
 
