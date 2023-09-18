@@ -11,7 +11,7 @@ Each `genre` has an `id` (Integer), `name` and a list of `movies` (Movie[]) qual
 In both cases, the `id` is the field uniquely identifying the record, although this API also enforces that for each `genre` its `name` be unique as well.
 This rule does not apply to other fields, in particular it does not apply to movie's `title`. In fact, it is not uncommon for two movies to share the exact same title, however they usually have different release dates, genre, plot etc.
 
-## Project structute and manual testing
+## Project structure and manual testing
 
 This is a dockerized project that runs in two containers. The first contains a Nest.js app, the API. The other one is a PostgresQL database, where the API data is stored.
 
