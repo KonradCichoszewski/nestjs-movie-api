@@ -13,7 +13,15 @@ This rule does not apply to other fields, in particular it does not apply to mov
 
 The data is stored in a PostgresQL database.
 
-### Endpoints and availbale operations
+## Running the app
+
+1. Make sure you have `docker-compose` installed. It is required to run this project. You can check the installation instructions in the [docker-compose docs](https://docs.docker.com/compose/install/)
+2. Unzip the project
+3. In the top level of the unzipped directory, find a file named `.env.example`. It’s a hidden file, so you might have to show hidden files in the directory first. If you're browsing the directory with an IDE it is most probably visible by default. Rename the file to `.env` and inside it, replace the values in the square brackets (<>) with values of your choice (without the brackets) and save the file.
+4. Open your terminal in the top level of the unzipped directory and run command `docker-compose up -d`.
+5. Once the build is finished and Docker containers start, your Movie API is ready to receive requests!
+
+## Endpoints and availbale operations
 
 For opertaions on `genres`, the following endpoints are exposed:
 
@@ -38,5 +46,3 @@ For opertaions on `movies`, the following endpoints are exposed:
   The last 3 endpoints (POST, PATCH, DELETE) return an object (genre) being the result (POST, PATCH) or the subject (DELETE) of a performed operation.
 
   Since in general each movie only belongs to a single or a couple of genres, by default each movie in the responses will contain a list of `genres` it qualifies to. This behaviour cannot be altered by the API user. A potential scenario where a requested movie would contain a large dataset of associated `genres` is highly unlikely and would have to be planned by a malicious actor. At this point, this API does not include any mechanism preventing users from associating an unlimited amount of genres to a movie.
-
-## Running the app
