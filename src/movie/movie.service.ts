@@ -1,6 +1,6 @@
 import {
-  BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +10,7 @@ import { PrismaService } from 'src/shared/prisma.service';
 import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
 import { Prisma } from '@prisma/client';
 import { GenreService } from 'src/genre/genre.service';
+import { createFail, deleteFail, updateFail } from 'src/shared/messages';
 
 @Injectable()
 export class MovieService {
@@ -18,6 +19,7 @@ export class MovieService {
     private readonly genreService: GenreService,
   ) {}
   private readonly logger = new Logger(MovieService.name);
+  private readonly entityName = 'movie';
 
   async create(dto: CreateMovieDto) {
     await Promise.all(
@@ -41,7 +43,7 @@ export class MovieService {
       return movie;
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Failed to create movie');
+      throw new InternalServerErrorException(createFail(this.entityName));
     }
   }
 
@@ -103,7 +105,7 @@ export class MovieService {
       return updatedMovie;
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Failed to update movie');
+      throw new InternalServerErrorException(updateFail(this.entityName));
     }
   }
 
@@ -116,7 +118,7 @@ export class MovieService {
       return deletedMovie;
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Failed to delete movie');
+      throw new InternalServerErrorException(deleteFail(this.entityName));
     }
   }
 }
