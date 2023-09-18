@@ -9,6 +9,7 @@ import {
   MIN_MOVIE_TITLE_LENGTH,
 } from 'src/shared/const';
 import { nullToUndefined } from 'src/shared/utils/null-to-undefined.transformer';
+import { sanitizeGenreNames } from 'src/shared/utils/sanitize-genre-names.transformer';
 
 export class UpdateMovieDto {
   @Transform(nullToUndefined)
@@ -34,12 +35,14 @@ export class UpdateMovieDto {
   releaseDate?: Date;
 
   @Transform(nullToUndefined)
+  @Transform(sanitizeGenreNames)
   @IsOptional()
   @IsString({ each: true })
   @Length(MIN_GENRE_NAME_LENGTH, MAX_GENRE_NAME_LENGTH, { each: true })
   genresToAdd?: string[];
 
   @Transform(nullToUndefined)
+  @Transform(sanitizeGenreNames)
   @IsOptional()
   @IsString({ each: true })
   @Length(MIN_GENRE_NAME_LENGTH, MAX_GENRE_NAME_LENGTH, { each: true })

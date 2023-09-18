@@ -15,6 +15,7 @@ import {
   MIN_MOVIE_DESCRIPTION_LENGTH,
   MIN_MOVIE_TITLE_LENGTH,
 } from 'src/shared/const';
+import { sanitizeGenreNames } from 'src/shared/utils/sanitize-genre-names.transformer';
 
 export class CreateMovieDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
@@ -37,6 +38,7 @@ export class CreateMovieDto {
   })
   releaseDate: Date;
 
+  @Transform(sanitizeGenreNames)
   @IsNotEmpty()
   @IsArray()
   @ArrayNotEmpty()
