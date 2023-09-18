@@ -18,8 +18,9 @@ The data is stored in a PostgresQL database.
 1. Make sure you have `docker-compose` installed. It is required to run this project. You can check the installation instructions in the [docker-compose docs](https://docs.docker.com/compose/install/)
 2. Unzip the project
 3. In the top level of the unzipped directory, find a file named `.env.example`. It’s a hidden file, so you might have to show hidden files in the directory first. If you're browsing the directory with an IDE it is most probably visible by default. Rename the file to `.env` and inside it, replace the values in the square brackets (<>) with values of your choice (without the brackets) and save the file.
-4. Open your terminal in the top level of the unzipped directory and run command `docker-compose up -d`.
-5. Once the build is finished and Docker containers start, your Movie API is ready to receive requests!
+4. (Optional) You can _optionally_ override the `APP_PORT` variable value `3000` in order to link the API running in the Docker container to a different port on your local machine. However, it is advised to leave this value unchanged so that you can use the attached Postman collection to test the API without the need to ajdust the URLs (they are set to `localhost:3000` by default).
+5. Open your terminal in the top level of the unzipped directory and run command `docker-compose up -d`.
+6. Once the build is finished and Docker containers start, your Movie API is ready to receive requests!
 
 ## Endpoints and availbale operations
 
