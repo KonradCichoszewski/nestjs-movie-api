@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsDate, IsOptional, IsString, Length } from 'class-validator';
 import {
   MAX_GENRE_NAME_LENGTH,
@@ -18,8 +19,12 @@ export class UpdateMovieDto {
   @Length(MIN_MOVIE_DESCRIPTION_LENGTH, MAX_MOVIE_DESCRIPTION_LENGTH)
   description?: string;
 
+  @Transform(({ value }) => new Date(value))
   @IsOptional()
-  @IsDate()
+  @IsDate({
+    message:
+      'releaseDate must be a value convertable to JavaScript Date object',
+  })
   releaseDate?: Date;
 
   @IsOptional()
