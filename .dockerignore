@@ -1,6 +1,10 @@
 node_modules
 npm-debug.log
 dist
+Dockerfile
+.git
+.gitignore
+*.md
 
 **/node_modules
 **/.git
