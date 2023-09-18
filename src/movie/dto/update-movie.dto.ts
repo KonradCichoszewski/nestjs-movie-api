@@ -8,18 +8,22 @@ import {
   MIN_MOVIE_DESCRIPTION_LENGTH,
   MIN_MOVIE_TITLE_LENGTH,
 } from 'src/shared/const';
+import { nullToUndefined } from 'src/shared/utils/null-to-undefined.transformer';
 
 export class UpdateMovieDto {
+  @Transform(nullToUndefined)
+  @IsOptional()
   @IsString()
   @Length(MIN_MOVIE_TITLE_LENGTH, MAX_MOVIE_TITLE_LENGTH)
   title?: string;
 
+  @Transform(nullToUndefined)
   @IsOptional()
   @IsString()
   @Length(MIN_MOVIE_DESCRIPTION_LENGTH, MAX_MOVIE_DESCRIPTION_LENGTH)
   description?: string;
 
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => (value === null ? undefined : new Date(value)))
   @IsOptional()
   @IsDate({
     message:
@@ -27,11 +31,13 @@ export class UpdateMovieDto {
   })
   releaseDate?: Date;
 
+  @Transform(nullToUndefined)
   @IsOptional()
   @IsString({ each: true })
   @Length(MIN_GENRE_NAME_LENGTH, MAX_GENRE_NAME_LENGTH, { each: true })
   genresToAdd?: string[];
 
+  @Transform(nullToUndefined)
   @IsOptional()
   @IsString({ each: true })
   @Length(MIN_GENRE_NAME_LENGTH, MAX_GENRE_NAME_LENGTH, { each: true })
