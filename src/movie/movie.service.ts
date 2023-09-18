@@ -26,6 +26,7 @@ export class MovieService {
   private readonly entityName = 'movie';
 
   async create(dto: CreateMovieDto): Promise<Movie> {
+    // Check if all provided genres exist, if not throw NotFoundException
     await Promise.all(
       dto.genres.map(async (name) => {
         return this.genreService.findOneByName(name);
@@ -33,6 +34,7 @@ export class MovieService {
     );
 
     try {
+      // Create movie
       const movie = await this.prisma.movie.create({
         data: {
           title: dto.title,
@@ -42,10 +44,12 @@ export class MovieService {
             connect: dto.genres.map((name) => ({ name })),
           },
         },
+        // Include genres into result
         include: { genres: true },
       });
       return movie;
     } catch (error) {
+      // In case of unexpected error, log it and throw InternalServerErrorException
       this.logger.error(error);
       throw new InternalServerErrorException(createFail(this.entityName));
     }
@@ -54,6 +58,7 @@ export class MovieService {
   async findAll(
     dto: GetMoviesQueryDto,
   ): Promise<GetMoviesPaginatedResponseDto> {
+    // Map the query object
     const query: Prisma.MovieWhereInput = {
       ...(dto.title !== undefined && {
         title: { contains: dto.title, mode: 'insensitive' },
@@ -65,6 +70,7 @@ export class MovieService {
       }),
     };
 
+    // Get a total count of movies that match the query and the movies themselves
     const [totalCount, items] = await this.prisma.$transaction([
       this.prisma.movie.count({
         where: query,
@@ -81,22 +87,28 @@ export class MovieService {
       }),
     ]);
 
+    // Map pagination metadata
     const pagination: PaginationMetadataDto = {
       page: dto.page,
       pageSize: dto.pageSize,
       totalCount,
     };
+
+    // Map the response object
     const result: GetMoviesPaginatedResponseDto = { items, pagination };
 
     return result;
   }
 
   async findOne(id: number): Promise<Movie> {
+    // Find movie by id
     const movie = await this.prisma.movie.findUnique({
       where: { id },
+      // Include genres into result
       include: { genres: true },
     });
 
+    // Throw NotFoundException if movie with the specified id doesn't exist
     if (!movie) {
       throw new NotFoundException(`Movie with id ${id} not found`);
     }
@@ -107,6 +119,7 @@ export class MovieService {
   async search(
     dto: SearchMoviesQueryDto,
   ): Promise<GetMoviesPaginatedResponseDto> {
+    // Map the query object
     const query: Prisma.MovieWhereInput = {
       OR: [
         { title: { contains: dto.titleOrGenre, mode: 'insensitive' } },
@@ -118,33 +131,41 @@ export class MovieService {
       ],
     };
 
+    // Get a total count of movies that match the query and the movies themselves
     const [totalCount, items] = await this.prisma.$transaction([
       this.prisma.movie.count({
         where: query,
       }),
       this.prisma.movie.findMany({
         where: query,
+        // Sort the results
         orderBy: [
           { [dto.sortBy]: dto.sortingDirection },
           { [MoviesSortBy.ID]: SortingDirection.ASC },
         ],
+        // Skip and take are used for pagination
         skip: (dto.page - 1) * dto.pageSize,
         take: dto.pageSize,
+        // Include genres into result
         include: { genres: true },
       }),
     ]);
 
+    // Map pagination metadata
     const pagination: PaginationMetadataDto = {
       page: dto.page,
       pageSize: dto.pageSize,
       totalCount,
     };
+
+    // Map the response object
     const result: GetMoviesPaginatedResponseDto = { items, pagination };
 
     return result;
   }
 
   async update(id: number, dto: UpdateMovieDto): Promise<Movie> {
+    // Check if all provided genres exist, if not throw NotFoundException
     await Promise.all([
       ...(dto.genresToAdd === undefined
         ? []
@@ -159,6 +180,7 @@ export class MovieService {
     ]);
 
     try {
+      // Update movie
       const updatedMovie = await this.prisma.movie.update({
         where: { id },
         data: {
@@ -170,23 +192,28 @@ export class MovieService {
             disconnect: dto.genresToRemove?.map((name) => ({ name })),
           },
         },
+        // Include genres into result
         include: { genres: true },
       });
       return updatedMovie;
     } catch (error) {
+      // In case of unexpected error, log it and throw InternalServerErrorException
       this.logger.error(error);
       throw new InternalServerErrorException(updateFail(this.entityName));
     }
   }
 
   async remove(id: number): Promise<Movie> {
+    // Delete movie
     try {
       const deletedMovie = await this.prisma.movie.delete({
         where: { id },
+        // Include genres into result
         include: { genres: true },
       });
       return deletedMovie;
     } catch (error) {
+      // In case of unexpected error, log it and throw InternalServerErrorException
       this.logger.error(error);
       throw new InternalServerErrorException(deleteFail(this.entityName));
     }
