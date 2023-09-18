@@ -7,10 +7,13 @@ import {
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/shared/prisma.service';
-import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
-import { Prisma } from '@prisma/client';
+import { GetMoviesQueryDto, MoviesSortBy } from './dto/get-movies.query.dto';
+import { Movie, Prisma } from '@prisma/client';
 import { GenreService } from 'src/genre/genre.service';
 import { createFail, deleteFail, updateFail } from 'src/shared/messages';
+import { PaginationMetadataDto } from 'src/shared/dto/pagination-metadata.dto';
+import { GetMoviesPaginatedResponseDto } from './dto/get-movies-paginated.response.dto';
+import { SortingDirection } from 'src/shared/enums/sorting-direction.enum';
 
 @Injectable()
 export class MovieService {
@@ -21,7 +24,7 @@ export class MovieService {
   private readonly logger = new Logger(MovieService.name);
   private readonly entityName = 'movie';
 
-  async create(dto: CreateMovieDto) {
+  async create(dto: CreateMovieDto): Promise<Movie> {
     await Promise.all(
       dto.genres.map(async (name) => {
         return this.genreService.findOneByName(name);
@@ -47,7 +50,9 @@ export class MovieService {
     }
   }
 
-  async findAll(dto: GetMoviesQueryDto) {
+  async findAll(
+    dto: GetMoviesQueryDto,
+  ): Promise<GetMoviesPaginatedResponseDto> {
     const query: Prisma.MovieWhereInput = {
       ...(dto.title !== undefined && {
         title: { contains: dto.title, mode: 'insensitive' },
@@ -59,13 +64,33 @@ export class MovieService {
       }),
     };
 
-    return this.prisma.movie.findMany({
-      where: query,
-      include: { genres: true },
-    });
+    const [totalCount, items] = await this.prisma.$transaction([
+      this.prisma.movie.count({
+        where: query,
+      }),
+      this.prisma.movie.findMany({
+        where: query,
+        orderBy: [
+          { [dto.sortBy]: dto.sortingDirection },
+          { [MoviesSortBy.ID]: SortingDirection.ASC },
+        ],
+        skip: (dto.page - 1) * dto.pageSize,
+        take: dto.pageSize,
+        include: { genres: true },
+      }),
+    ]);
+
+    const pagination: PaginationMetadataDto = {
+      page: dto.page,
+      pageSize: dto.pageSize,
+      totalCount,
+    };
+    const result: GetMoviesPaginatedResponseDto = { items, pagination };
+
+    return result;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Movie> {
     const movie = await this.prisma.movie.findUnique({
       where: { id },
       include: { genres: true },
@@ -78,7 +103,7 @@ export class MovieService {
     return movie;
   }
 
-  async update(id: number, dto: UpdateMovieDto) {
+  async update(id: number, dto: UpdateMovieDto): Promise<Movie> {
     await Promise.all([
       ...dto.genresToAdd.map(async (name) => {
         return this.genreService.findOneByName(name);
@@ -109,7 +134,7 @@ export class MovieService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<Movie> {
     try {
       const deletedMovie = await this.prisma.movie.delete({
         where: { id },

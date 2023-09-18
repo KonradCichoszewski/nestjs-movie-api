@@ -10,6 +10,7 @@ import { PrismaService } from 'src/shared/prisma.service';
 import { GenreQueryDto } from './dto/genre.query.dto';
 import { Genre } from '@prisma/client';
 import { createFail, deleteFail, updateFail } from 'src/shared/messages';
+import { SortingDirection } from 'src/shared/enums/sorting-direction.enum';
 
 @Injectable()
 export class GenreService {
@@ -31,6 +32,7 @@ export class GenreService {
 
   async findAll(query: GenreQueryDto): Promise<Genre[]> {
     return this.prisma.genre.findMany({
+      orderBy: { ['name']: SortingDirection.ASC },
       include: { movies: query.includeMovies },
     });
   }

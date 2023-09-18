@@ -4,3 +4,5 @@ export const MIN_MOVIE_TITLE_LENGTH = 1;
 export const MAX_MOVIE_TITLE_LENGTH = 100;
 export const MIN_MOVIE_DESCRIPTION_LENGTH = 1;
 export const MAX_MOVIE_DESCRIPTION_LENGTH = 1000;
+export const DEFAULT_PAGE_SIZE = 10;
+export const MAX_PAGE_SIZE = 100;
