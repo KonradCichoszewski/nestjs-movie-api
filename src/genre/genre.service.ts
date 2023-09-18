@@ -33,7 +33,7 @@ export class GenreService {
     });
   }
 
-  async findOne(id: number, query: GenreQueryDto): Promise<Genre> {
+  async findOneById(id: number, query: GenreQueryDto): Promise<Genre> {
     const genre = await this.prisma.genre.findUnique({
       where: { id },
       include: { movies: query.includeMovies },
@@ -41,6 +41,18 @@ export class GenreService {
 
     if (!genre) {
       throw new NotFoundException(`Genre with id ${id} not found`);
+    }
+
+    return genre;
+  }
+
+  async findOneByName(name: string): Promise<Genre> {
+    const genre = await this.prisma.genre.findUnique({
+      where: { name },
+    });
+
+    if (!genre) {
+      throw new NotFoundException(`Genre named "${name}" not found`);
     }
 
     return genre;

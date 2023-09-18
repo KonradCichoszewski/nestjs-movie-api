@@ -9,13 +9,23 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/shared/prisma.service';
 import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
 import { Prisma } from '@prisma/client';
+import { GenreService } from 'src/genre/genre.service';
 
 @Injectable()
 export class MovieService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly genreService: GenreService,
+  ) {}
   private readonly logger = new Logger(MovieService.name);
 
   async create(dto: CreateMovieDto) {
+    await Promise.all(
+      dto.genres.map(async (name) => {
+        return this.genreService.findOneByName(name);
+      }),
+    );
+
     try {
       const movie = await this.prisma.movie.create({
         data: {
@@ -67,6 +77,15 @@ export class MovieService {
   }
 
   async update(id: number, dto: UpdateMovieDto) {
+    await Promise.all([
+      ...dto.genresToAdd.map(async (name) => {
+        return this.genreService.findOneByName(name);
+      }),
+      ...dto.genresToRemove.map(async (name) => {
+        return this.genreService.findOneByName(name);
+      }),
+    ]);
+
     try {
       const updatedMovie = await this.prisma.movie.update({
         where: { id },

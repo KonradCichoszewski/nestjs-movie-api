@@ -35,7 +35,7 @@ export class GenreController {
     @Param() { id }: IntIdParamDto,
     @Query() query: GenreQueryDto,
   ): Promise<Genre> {
-    return this.genreService.findOne(id, query);
+    return this.genreService.findOneById(id, query);
   }
 
   @Patch(':id')
