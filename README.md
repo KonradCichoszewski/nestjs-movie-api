@@ -27,7 +27,7 @@ For opertaions on `genres`, the following endpoints are exposed:
 
 - `GET /genres` - list all genres. Genres are sorted by `name`, ascending, by default
 - `GET /genres/:id` - find a single genre by its `id`
-- `POST /genres` - create a new genre. This endpoint expects a body containing only genre's `name`. The `id`, if provided, will be ignored and assigned automatically by the database. This API requires that genre `name` be at least 1 and at most 50 characters long
+- `POST /genres` - create a new genre. This endpoint expects a body containing only genre's `name`. The `id`, if provided, will be ignored and assigned automatically by the database. This API requires that genre `name` be at least 1 and at most 50 characters long. The genre names must be unique, and are saved to the database converted to lowercase and trimmed of the whitespace, so if a genre named `"horror"` already exists, then an attempt to create a new genre named `"Horror"` or `" hORRoR "` will result in a `HTTP 409 Conflict` response.
 - `PATCH /genres/:id` - update a genre with the provided `id`. Since the `name` is the only editable genre's property, it is required in the request body
 - `DELETE /genres/:id` - remove a genre with the provided `id`. The genre will also be removed from a list of genres of any movie which contained it. As a result of this operation some movies can become "genreless" (with no associated genres) and this API allows such state.
 

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -19,6 +20,14 @@ export class GenreService {
   private readonly entityName = 'genre';
 
   async create(dto: CreateGenreDto): Promise<Genre> {
+    const exisintgGenre = await this.prisma.genre.findUnique({
+      where: { name: dto.name },
+    });
+
+    if (exisintgGenre) {
+      throw new ConflictException(`Genre named "${dto.name}" already exists`);
+    }
+
     try {
       const genre = await this.prisma.genre.create({
         data: dto,
