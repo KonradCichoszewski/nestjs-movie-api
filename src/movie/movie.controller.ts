@@ -15,6 +15,7 @@ import { GetMoviesQueryDto } from './dto/get-movies.query.dto';
 import { Movie } from '@prisma/client';
 import { IntIdParamDto } from 'src/shared/dto/int-id-param.dto';
 import { GetMoviesPaginatedResponseDto } from './dto/get-movies-paginated.response.dto';
+import { SearchMoviesQueryDto } from './dto/search-movies.query.dto';
 
 @Controller('movies')
 export class MovieController {
@@ -30,6 +31,13 @@ export class MovieController {
     @Query() query: GetMoviesQueryDto,
   ): Promise<GetMoviesPaginatedResponseDto> {
     return this.movieService.findAll(query);
+  }
+
+  @Get('search')
+  async search(
+    @Query() query: SearchMoviesQueryDto,
+  ): Promise<GetMoviesPaginatedResponseDto> {
+    return this.movieService.search(query);
   }
 
   @Get(':id')

@@ -14,6 +14,7 @@ import { createFail, deleteFail, updateFail } from 'src/shared/messages';
 import { PaginationMetadataDto } from 'src/shared/dto/pagination-metadata.dto';
 import { GetMoviesPaginatedResponseDto } from './dto/get-movies-paginated.response.dto';
 import { SortingDirection } from 'src/shared/enums/sorting-direction.enum';
+import { SearchMoviesQueryDto } from './dto/search-movies.query.dto';
 
 @Injectable()
 export class MovieService {
@@ -101,6 +102,46 @@ export class MovieService {
     }
 
     return movie;
+  }
+
+  async search(
+    dto: SearchMoviesQueryDto,
+  ): Promise<GetMoviesPaginatedResponseDto> {
+    const query: Prisma.MovieWhereInput = {
+      OR: [
+        { title: { contains: dto.titleOrGenre, mode: 'insensitive' } },
+        {
+          genres: {
+            some: { name: { contains: dto.titleOrGenre, mode: 'insensitive' } },
+          },
+        },
+      ],
+    };
+
+    const [totalCount, items] = await this.prisma.$transaction([
+      this.prisma.movie.count({
+        where: query,
+      }),
+      this.prisma.movie.findMany({
+        where: query,
+        orderBy: [
+          { [dto.sortBy]: dto.sortingDirection },
+          { [MoviesSortBy.ID]: SortingDirection.ASC },
+        ],
+        skip: (dto.page - 1) * dto.pageSize,
+        take: dto.pageSize,
+        include: { genres: true },
+      }),
+    ]);
+
+    const pagination: PaginationMetadataDto = {
+      page: dto.page,
+      pageSize: dto.pageSize,
+      totalCount,
+    };
+    const result: GetMoviesPaginatedResponseDto = { items, pagination };
+
+    return result;
   }
 
   async update(id: number, dto: UpdateMovieDto): Promise<Movie> {
