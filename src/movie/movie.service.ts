@@ -146,12 +146,16 @@ export class MovieService {
 
   async update(id: number, dto: UpdateMovieDto): Promise<Movie> {
     await Promise.all([
-      ...dto.genresToAdd.map(async (name) => {
-        return this.genreService.findOneByName(name);
-      }),
-      ...dto.genresToRemove.map(async (name) => {
-        return this.genreService.findOneByName(name);
-      }),
+      ...(dto.genresToAdd === undefined
+        ? []
+        : dto.genresToAdd?.map(async (name) => {
+            return this.genreService.findOneByName(name);
+          })),
+      ...(dto.genresToRemove == undefined
+        ? []
+        : dto.genresToRemove?.map(async (name) => {
+            return this.genreService.findOneByName(name);
+          })),
     ]);
 
     try {
