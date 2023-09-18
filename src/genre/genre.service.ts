@@ -105,6 +105,9 @@ export class GenreService {
   }
 
   async remove(id: number, query: GenreQueryDto): Promise<Genre> {
+    // Check if genre with the specified id exists, if not throw NotFoundException
+    await this.findOneById(id, {});
+
     try {
       // Delete genre
       const deletedGenre = await this.prisma.genre.delete({

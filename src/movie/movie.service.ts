@@ -204,6 +204,9 @@ export class MovieService {
   }
 
   async remove(id: number): Promise<Movie> {
+    // Check if movie with the specified id exists, if not throw NotFoundException
+    await this.findOne(id);
+
     // Delete movie
     try {
       const deletedMovie = await this.prisma.movie.delete({
